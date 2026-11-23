@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { api, Accommodation, City, money } from "@/lib/api";
+import { api, Accommodation, City } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -43,10 +43,10 @@ export default function Home() {
   useEffect(() => {
     api<City[]>("/api/cities").then(setCities).catch(() => setCities([]));
   }, []);
-  useEffect(() => { load(); /* initial catalog */ }, []);
+  useEffect(() => { void Promise.resolve().then(() => load()); /* initial catalog */ }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const filtered = useMemo(() => items.filter((a) => `${a.title} ${a.address} ${cities.find((c) => c.city_id === a.city_id)?.name || ""}`.toLowerCase().includes(query.toLowerCase())), [items, query, cities]);
 
-  return <main className="min-h-screen bg-[#faf9f6] text-stone-800" dir="rtl">
+  return <main className="min-h-screen w-full overflow-x-clip bg-[#faf9f6] text-stone-800" dir="rtl">
     <header className="sticky top-0 z-30 border-b border-stone-200/70 bg-[#faf9f6]/90 backdrop-blur-xl">
       <div className="mx-auto flex h-[76px] max-w-7xl items-center justify-between px-5 lg:px-8">
         <Link href="/" className="flex items-center gap-3">
@@ -60,14 +60,14 @@ export default function Home() {
 
     <section className="relative isolate overflow-hidden bg-[#173f3b]">
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(12,42,39,.94)_0%,rgba(12,42,39,.72)_48%,rgba(12,42,39,.12)_100%),url('https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=2000&q=90')] bg-cover bg-center" />
-      <div className="mx-auto grid min-h-[520px] max-w-7xl items-center px-5 py-16 lg:grid-cols-[1.1fr_.9fr] lg:px-8">
-        <div className="max-w-2xl text-white">
+      <div className="mx-auto grid min-h-[520px] w-full min-w-0 max-w-7xl items-center px-5 py-16 lg:grid-cols-[1.1fr_.9fr] lg:px-8">
+        <div className="min-w-0 max-w-2xl text-white">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs text-teal-50"><span className="size-2 rounded-full bg-amber-300" /> مقصد بعدی‌ات همین‌جاست</div>
           <h1 className="text-4xl font-black leading-[1.5] tracking-tight sm:text-5xl lg:text-[58px]">جایی برای<br /><span className="text-[#e8c995]">خاطره‌های تازه</span></h1>
           <p className="mt-5 max-w-lg text-base leading-8 text-white/75">از خانه‌های دنج جنگلی تا ویلاهای ساحلی؛ اقامتگاه دلخواهت را پیدا کن و با خیال راحت راهی سفر شو.</p>
           <div className="mt-9 flex flex-wrap gap-6 text-xs text-white/80"><span>✦ اقامتگاه‌های منتخب</span><span>✦ رزرو آنلاین آسان</span><span>✦ قیمت شفاف</span></div>
         </div>
-        <div className="mt-12 rounded-[28px] border border-white/30 bg-white p-5 text-stone-800 shadow-2xl shadow-black/20 sm:p-7 lg:mt-0">
+        <div className="mt-12 w-full min-w-0 rounded-[28px] border border-white/30 bg-white p-5 text-stone-800 shadow-2xl shadow-black/20 sm:p-7 lg:mt-0">
           <div className="mb-6 flex items-center justify-between"><div><h2 className="text-xl font-black text-teal-950">اقامت بعدی‌ات را پیدا کن</h2><p className="mt-1 text-xs text-stone-500">جست‌وجو در میان اقامتگاه‌های ثبت‌شده</p></div><span className="text-2xl">⌕</span></div>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="grid gap-2 text-xs font-bold text-stone-600">مقصد<select value={city} onChange={(e) => setCity(e.target.value)} className="h-12 rounded-xl border border-stone-200 bg-stone-50 px-3 text-sm font-normal outline-none focus:border-teal-700"><option value="">همه شهرها</option>{cities.map((c) => <option key={c.city_id} value={c.city_id}>{c.name}</option>)}</select></label>

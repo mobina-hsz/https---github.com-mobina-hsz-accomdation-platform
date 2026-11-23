@@ -5,13 +5,10 @@ import { useEffect, useState } from "react";
 import { api, Accommodation, Guest, Reservation, money, dateFa } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Field } from "@/components/ui/field";
 
 const statusLabel: Record<string,string> = { pending:"در انتظار پرداخت", confirmed:"تأیید شده", cancelled:"لغو شده", completed:"تکمیل شده" };
 export default function MyBookings() {
   const [guest,setGuest]=useState<Guest|null>(null);
-  const [email,setEmail]=useState("");
   const [reservations,setReservations]=useState<Reservation[]>([]);
   const [favorites,setFavorites]=useState<Accommodation[]>([]);
   const [loading,setLoading]=useState(false);
@@ -27,7 +24,7 @@ export default function MyBookings() {
     } catch(e){setError(e instanceof Error?e.message:"دریافت اطلاعات ناموفق بود.");}
     finally{setLoading(false);}
   }
-  useEffect(()=>{try{const saved=localStorage.getItem("stay_guest");if(saved){const g=JSON.parse(saved) as Guest;setGuest(g);setEmail(g.email);void loadGuest(g);}}catch{/* storage unavailable */}},[]);
+  useEffect(()=>{void Promise.resolve().then(()=>{try{const saved=localStorage.getItem("stay_guest");if(saved){const g=JSON.parse(saved) as Guest;setGuest(g);void loadGuest(g);}}catch{/* storage unavailable */}});},[]);
   async function cancel(id:number){try{await api(`/api/reservations/${id}/cancel`,{method:"PATCH"});if(guest)await loadGuest(guest);}catch(e){setError(e instanceof Error?e.message:"لغو رزرو انجام نشد.");}}
   async function removeFavorite(id:number){if(!guest)return;try{await api(`/api/guests/${guest.guest_id}/favorites/${id}`,{method:"DELETE"});setFavorites((old)=>old.filter((x)=>x.accommodation_id!==id));}catch(e){setError(e instanceof Error?e.message:"حذف علاقه‌مندی انجام نشد.");}}
   return <main dir="rtl" className="min-h-screen bg-[#faf9f6] text-stone-800"><header className="border-b border-stone-200 bg-white"><div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-5"><Link href="/" className="font-black text-teal-950">✳ خانه‌راه</Link><Link href="/" className="text-sm text-stone-500">بازگشت به جست‌وجو ←</Link></div></header><div className="mx-auto max-w-5xl px-5 py-12"><p className="text-xs font-bold text-teal-800">حساب مهمان</p><h1 className="mt-2 text-3xl font-black text-teal-950">سفرهای من</h1><p className="mt-2 text-sm text-stone-500">رزروها و اقامتگاه‌های ذخیره‌شده‌ات را اینجا ببین.</p>
